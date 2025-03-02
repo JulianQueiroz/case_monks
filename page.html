@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body {
+        background-color: #2F2F2F;
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        margin-top: 40px;
+      }
+
+      .container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        width: 350px;
+      }
+
+      h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 15px;
+      }
+
+      label {
+        font-weight: bold;
+        display: block;
+        margin-top: 10px;
+        color: #555;
+      }
+
+      input, select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      .btn-submit {
+        background-color: #007BFF;
+        color: white;
+      }
+
+      .btn-submit:hover {
+        background-color: #0056b3;
+      }
+
+      .btn-reset {
+        background-color: #ccc;
+      }
+
+      .status-message {
+        text-align: center;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+
+      .status-processing {
+        color: blue;
+      }
+
+      .status-success {
+        color: green;
+      }
+
+      .status-error {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Product Filter</h2>
+      <form id="filterForm">
+        <label>Price Range</label>
+        <input type="number" id="minPrice" placeholder="Min">
+        <input type="number" id="maxPrice" placeholder="Max">
+
+        <label>Color</label>
+        <select id="color">
+          <option value="">Select</option>
+          <? for (var i = 0; i < uniqueColors.length; i++) { ?>
+            <option value="<?= uniqueColors[i] ?>"><?= uniqueColors[i] ?></option>
+          <? } ?>
+        </select>
+
+        <label>Size</label>
+        <select id="size">
+          <option value="">Select</option>
+          <? for (var i = 0; i < uniqueSizes.length; i++) { ?>
+            <option value="<?= uniqueSizes[i] ?>"><?= uniqueSizes[i] ?></option>
+          <? } ?>
+        </select>
+
+        <label>Gender</label>
+        <select id="gender">
+          <option value="">Select</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+
+        <button type="submit" class="btn-submit">Submit</button>
+        <button type="button" class="btn-reset" id="resetFilters">Clear Filters</button>
+      </form>
+
+      <p id="statusMessage" class="status-message"></p>
+    </div>
+
+    <script>
+      document.getElementById("filterForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        
+        let statusMessage = document.getElementById("statusMessage");
+        statusMessage.textContent = "Processing data in the spreadsheet...";
+        statusMessage.className = "status-message status-processing";
+
+        let filters = {
+          minPrice: document.getElementById("minPrice").value,
+          maxPrice: document.getElementById("maxPrice").value,
+          color: document.getElementById("color").value,
+          size: document.getElementById("size").value,
+          gender: document.getElementById("gender").value
+        };
+
+        google.script.run
+          .withSuccessHandler(function() {
+            statusMessage.textContent = "Data rendered successfully!";
+            statusMessage.className = "status-message status-success";
+          })
+          .withFailureHandler(function() {
+            statusMessage.textContent = "Error processing data.";
+            statusMessage.className = "status-message status-error";
+          })
+          .getFilteredProducts(JSON.stringify(filters));
+      });
+
+      document.getElementById("resetFilters").addEventListener("click", function() {
+        document.getElementById("filterForm").reset();
+        document.getElementById("statusMessage").textContent = "";
+      });
+    </script>
+  </body>
+</html>
